@@ -16,36 +16,37 @@ new Test.Unit.Runner({
     // hack to cleanup responders
     Ajax.Responders.responders = [Ajax.Responders.responders[0]];
   },
-  
+
   testSynchronousRequest: function() {
-    this.assertEqual("", $("content").innerHTML);
-    
     this.assertEqual(0, Ajax.activeRequestCount);
-    new Ajax.Request("../fixtures/hello.js", {
+    var responseText;
+    new Ajax.Request("../fixtures/hello.txt", {
       asynchronous: false,
       method: 'GET',
-      evalJS: 'force'
+      evalJS: false,
+      onComplete: function(response) {
+        responseText = response.responseText;
+      }
     });
     this.assertEqual(0, Ajax.activeRequestCount);
-    
-    var h2 = $("content").firstChild;
-    this.assertEqual("Hello world!", h2.innerHTML);
+    this.assertEqual("Hello world!\n", responseText);
   },
-  
+
   testAsynchronousRequest: function() {
-    this.assertEqual("", $("content").innerHTML);
-    
-    new Ajax.Request("../fixtures/hello.js", {
+    var responseText;
+    new Ajax.Request("../fixtures/hello.txt", {
       asynchronous: true,
       method: 'get',
-      evalJS: 'force'
+      evalJS: false,
+      onComplete: function(response) {
+        responseText = response.responseText;
+      }
     });
     this.wait(1000, function() {
-      var h2 = $("content").firstChild;
-      this.assertEqual("Hello world!", h2.innerHTML);
+      this.assertEqual("Hello world!\n", responseText);
     });
   },
-  
+
   testUpdater: function() {
     this.assertEqual("", $("content").innerHTML);
     
@@ -105,7 +106,9 @@ new Test.Unit.Runner({
     this.assertEqual(1, Ajax.Responders.responders.length);
     
     var dummyResponder = {
-      onComplete: function(req) { /* dummy */ }
+      onComplete: function(req) {
+        // dummy
+      }
     };
     
     Ajax.Responders.register(dummyResponder);
@@ -243,7 +246,7 @@ new Test.Unit.Runner({
       this.info(message);
     }
   },
-      
+
   testResponseJSON: function() {
     if (this.isRunningFromRake) {
       new Ajax.Request("/response", extendDefault({
@@ -281,13 +284,12 @@ new Test.Unit.Runner({
     } else {
       this.info(message);
     }
-    
     new Ajax.Request("../fixtures/data.json", extendDefault({
       evalJSON: 'force',
       onComplete: function(transport) { this.assertEqual(123, transport.responseJSON.test) }.bind(this)
     }));
   },
-  
+
   testHeaderJSON: function() {
     if (this.isRunningFromRake) {
       new Ajax.Request("/response", extendDefault({
@@ -297,7 +299,7 @@ new Test.Unit.Runner({
           this.assertEqual('hello #éà', json.test);
         }.bind(this)
       }));
-    
+
       new Ajax.Request("/response", extendDefault({
         onComplete: function(transport, json) { 
           this.assertNull(transport.headerJSON)
