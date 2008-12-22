@@ -14,7 +14,7 @@ div.style-test { margin-left: 1px }
 
 #not_floating_style { float: none }
 #floating_style { float: left }
-#op2 { opacity:0.5;filter:alpha(opacity=50)progid:DXImageTransform.Microsoft.Blur(strength=10);}
+#op2 { opacity:0.5; /* TODO: filter:alpha(opacity=50)progid:DXImageTransform.Microsoft.Blur(strength=10); */}
 
 #scroll_test_1 { 
   margin: 10px;
